@@ -75,6 +75,18 @@ export function ChatMessage({
       cleaned = cleaned.substring(0, summaryIndex);
     }
     
+    // Remove "📚 Sources Referenced from Collection" section and everything after it
+    const sourcesRefIndex = cleaned.indexOf('📚 Sources Referenced from Collection');
+    if (sourcesRefIndex !== -1) {
+      cleaned = cleaned.substring(0, sourcesRefIndex);
+    }
+    
+    // Remove "*Total sources consulted:" section and everything after it
+    const totalSourcesIndex = cleaned.indexOf('*Total sources consulted:');
+    if (totalSourcesIndex !== -1) {
+      cleaned = cleaned.substring(0, totalSourcesIndex);
+    }
+    
     // Clean up extra whitespace and line breaks
     cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n');
     cleaned = cleaned.trim();

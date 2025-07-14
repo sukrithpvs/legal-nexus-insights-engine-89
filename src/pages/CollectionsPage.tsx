@@ -151,7 +151,7 @@ export function CollectionsPage() {
 
               <div className="flex-1 flex overflow-hidden">
                 {/* Collections Sidebar */}
-                <div className="w-80 flex flex-col border-r border-border bg-muted/20">
+                <div className="w-80 flex flex-col border-r border-border bg-muted/20 overflow-hidden">
                   <CollectionsList
                     collections={collections}
                     selectedCollection={selectedCollection}
@@ -165,7 +165,7 @@ export function CollectionsPage() {
                 </div>
 
                 {/* Chat Area */}
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 flex flex-col overflow-hidden">
                   {selectedCollection ? (
                     <ChatInterface
                       selectedCollection={selectedCollection}

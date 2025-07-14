@@ -82,6 +82,59 @@ export function ChatMessage({
     return cleaned;
   };
 
+  // Convert markdown formatting to JSX elements
+  const formatContent = (text: string) => {
+    const lines = text.split('\n');
+    const formattedLines: JSX.Element[] = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      if (line.startsWith('### ')) {
+        // H3 headers
+        formattedLines.push(
+          <h3 key={i} className="text-base font-semibold mt-4 mb-2 text-foreground">
+            {line.replace('### ', '')}
+          </h3>
+        );
+      } else if (line.startsWith('## ')) {
+        // H2 headers
+        formattedLines.push(
+          <h2 key={i} className="text-lg font-semibold mt-4 mb-2 text-foreground">
+            {line.replace('## ', '')}
+          </h2>
+        );
+      } else if (line.startsWith('# ')) {
+        // H1 headers
+        formattedLines.push(
+          <h1 key={i} className="text-xl font-bold mt-4 mb-3 text-foreground">
+            {line.replace('# ', '')}
+          </h1>
+        );
+      } else if (line.startsWith('- ')) {
+        // Bullet points
+        formattedLines.push(
+          <div key={i} className="ml-4 mb-1">
+            <span className="text-muted-foreground mr-2">•</span>
+            {line.replace('- ', '')}
+          </div>
+        );
+      } else if (line.trim() === '') {
+        // Empty lines for spacing
+        formattedLines.push(<div key={i} className="h-2" />);
+      } else {
+        // Regular text
+        formattedLines.push(
+          <p key={i} className="mb-2 leading-relaxed">
+            {line}
+          </p>
+        );
+      }
+    }
+    
+    return formattedLines;
+  };
+
   const displayContent = type === 'assistant' ? cleanContent(content) : content;
 
   return (
@@ -96,8 +149,8 @@ export function ChatMessage({
         <Card className={`p-4 ${type === 'user' ? 'bg-primary text-primary-foreground ml-12' : 'bg-muted'}`}>
           <div className="space-y-3">
             {/* Message Content */}
-            <div className="text-sm leading-relaxed whitespace-pre-wrap">
-              {displayContent}
+            <div className="text-sm leading-relaxed">
+              {type === 'assistant' ? formatContent(displayContent) : displayContent}
             </div>
             
             {/* Sources - Only show if available and not empty */}
@@ -116,7 +169,7 @@ export function ChatMessage({
                         </span>
                         {source.pages && source.pages.length > 0 && (
                           <Badge variant="secondary" className="text-xs">
-                            Pages: {source.pages.join(', ')}
+                            {source.pages.join(', ')}
                           </Badge>
                         )}
                       </div>

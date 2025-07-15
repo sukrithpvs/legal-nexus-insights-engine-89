@@ -69,7 +69,7 @@ export function CollectionsPage() {
 
   const deleteCollection = async (collection: Collection) => {
     try {
-      const response = await fetch(`http://localhost:8000/collections/${encodeURIComponent(collection.name)}`, {
+      const response = await fetch(`http://localhost:8000/collections/${collection.id}`, {
         method: "DELETE",
       });
 

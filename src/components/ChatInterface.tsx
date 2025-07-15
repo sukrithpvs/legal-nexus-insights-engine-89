@@ -67,14 +67,16 @@ export function ChatInterface({
     setChatHistory(prev => [...prev, userEntry]);
     
     try {
-      const formData = new FormData();
-      formData.append("query", query);
-      formData.append("collection_name", selectedCollection.name);
-      formData.append("debug", "false");
-
       const response = await fetch("http://localhost:8000/collections/query", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: query,
+          collection_id: selectedCollection.id,
+          debug: false,
+        }),
       });
 
       if (!response.ok) {
@@ -90,6 +92,7 @@ export function ChatInterface({
           content: data.answer || "No answer available.",
           timestamp: new Date().toISOString(),
           sources: data.sources || [],
+          collectionId: data.collection_id,
           collectionName: data.collection_name
         };
         

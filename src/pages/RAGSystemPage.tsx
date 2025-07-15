@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Search, FileText, Download, ExternalLink, Loader2, Sparkles, MessageSquare, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -104,7 +105,7 @@ export function RAGSystemPage() {
     setChatHistory(prev => [...prev, userEntry]);
     
     try {
-      const response = await fetch("http://localhost:8000/rag/query-detailed", {
+      const response = await fetch("http://localhost:8000/query/default-detailed", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

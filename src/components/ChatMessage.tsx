@@ -1,9 +1,11 @@
 
+import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, ExternalLink, User, Bot, Eye } from "lucide-react";
+import { FileText, Eye, User, Bot, ChevronDown, ChevronRight, Brain } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Source {
   document: string;
@@ -33,12 +35,28 @@ export function ChatMessage({
   intent, 
   onSourceClick 
 }: ChatMessageProps) {
+  const [isThinkingOpen, setIsThinkingOpen] = useState(false);
+
   const formatTimestamp = (timestamp: string) => {
     try {
       return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
     } catch {
       return 'recently';
     }
+  };
+
+  // Extract thinking content and main content
+  const parseContent = (text: string) => {
+    const thinkingMatch = text.match(/<think>([\s\S]*?)<\/think>/);
+    let thinkingContent = '';
+    let mainContent = text;
+
+    if (thinkingMatch) {
+      thinkingContent = thinkingMatch[1].trim();
+      mainContent = text.replace(/<think>[\s\S]*?<\/think>/, '').trim();
+    }
+
+    return { thinkingContent, mainContent };
   };
 
   // Clean the content by removing references, confidence scores, and technical metadata
@@ -147,7 +165,8 @@ export function ChatMessage({
     return formattedLines;
   };
 
-  const displayContent = type === 'assistant' ? cleanContent(content) : content;
+  const { thinkingContent, mainContent } = type === 'assistant' ? parseContent(content) : { thinkingContent: '', mainContent: content };
+  const displayContent = type === 'assistant' ? cleanContent(mainContent) : mainContent;
 
   return (
     <div className={`flex gap-3 ${type === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -160,7 +179,32 @@ export function ChatMessage({
       <div className={`flex flex-col gap-2 max-w-[80%] ${type === 'user' ? 'items-end' : 'items-start'}`}>
         <Card className={`p-4 ${type === 'user' ? 'bg-primary text-primary-foreground ml-12' : 'bg-muted'}`}>
           <div className="space-y-3">
-            {/* Message Content */}
+            {/* Thinking Process - Collapsible (for assistant messages only) */}
+            {type === 'assistant' && thinkingContent && (
+              <Collapsible open={isThinkingOpen} onOpenChange={setIsThinkingOpen}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-start p-2 h-auto text-xs text-muted-foreground hover:bg-background/50">
+                    <Brain className="h-3 w-3 mr-2" />
+                    <span>Show AI thinking process</span>
+                    {isThinkingOpen ? (
+                      <ChevronDown className="h-3 w-3 ml-auto" />
+                    ) : (
+                      <ChevronRight className="h-3 w-3 ml-auto" />
+                    )}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-2">
+                  <div className="p-3 bg-background/50 rounded border-l-2 border-primary/20">
+                    <div className="text-xs text-muted-foreground mb-2 font-medium">AI Reasoning:</div>
+                    <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {thinkingContent}
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+
+            {/* Main Message Content */}
             <div className="text-sm leading-relaxed">
               {type === 'assistant' ? formatContent(displayContent) : displayContent}
             </div>
@@ -187,7 +231,7 @@ export function ChatMessage({
                       </div>
                       {onSourceClick && (
                         <Button
-                          variant="ghost"
+                          variant="ghost"  
                           size="sm"
                           className="h-6 px-2 text-xs"
                           onClick={() => onSourceClick(source)}
